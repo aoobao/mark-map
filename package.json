@@ -1,5 +1,5 @@
 {
-  "name": "mark-map",
+  "name": "mark-canvas",
   "private": false,
   "version": "0.0.1",
   "type": "module",
@@ -23,6 +23,11 @@
   ],
   "license": "MIT",
   "author": "aoobao",
+  "homepage": "https://aoobao.github.io/mark-map/modules.html",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/aoobao/mark-map"
+  },
   "scripts": {
     "dev": "vite",
     "build": "rimraf dist/ && npm run build:lib",

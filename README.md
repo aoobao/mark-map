@@ -4,3 +4,8 @@
 
 docs:
 [https://aoobao.github.io/mark-map/modules.html](https://aoobao.github.io/mark-map/modules.html)
+
+
+````
+npm i mark-canvas --save
+````
