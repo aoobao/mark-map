@@ -193,7 +193,7 @@ export class Vector2 {
   }
 
   /**
-   * 向量点乘 x*vec.x+y*vec.y
+   * 向量点乘 x * vec.x + y * vec.y
    * @param vec 向量
    * @returns 返回点乘标量值
    */
@@ -213,7 +213,7 @@ export class Vector2 {
 
   /**
    * 向量长度的平方
-   * @returns x*x+y*y
+   * @returns x * x + y * y
    */
   lengthSq() {
     return this.x * this.x + this.y * this.y
