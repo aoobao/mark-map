@@ -1,6 +1,6 @@
 {
   "name": "mark-map",
-  "private": true,
+  "private": false,
   "version": "0.0.1",
   "type": "module",
   "description": "canvas绘制图形框架",
