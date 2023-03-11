@@ -1,7 +1,7 @@
 import { Vector2 } from '../math'
 import { Matrix3 } from '../math/Matrix3'
-import { callMethod, generateUUID, isNotNull } from '../utils'
-import { DEFAULT_Z_INDEX, GET_MATRIX } from '../utils/const'
+import { generateUUID, isNotNull } from '../utils'
+import { DEFAULT_Z_INDEX, MATRIX_SELF } from '../utils/const'
 
 export interface ICoreOptions {
   id?: string
@@ -15,22 +15,29 @@ export interface ICoreOptions {
 }
 
 export class Core {
-  readonly type = 'Core'
+  /**通过type字段获得对象的类 */
+  get type() {
+    return 'Core'
+  }
 
   readonly id: string
 
+  /**名称 */
   name?: string | symbol
 
   private _position: Vector2
 
   private _scale: Vector2
 
-  private _theta: number;
+  private _theta: number
 
   private _matrix: Matrix3 | undefined
 
+  /**透明度[0,1] 1表示不透明 */
   alpha = 1
+  /**是否显示 */
   visible = true
+  /**显示层级 */
   zIndex = DEFAULT_Z_INDEX
 
   /**x轴位置 */
@@ -83,9 +90,8 @@ export class Core {
   }
   /**设置缩放值(x,y缩放相同) */
   set scale(value: number) {
-    if (this._scale.x === value && this._scale.y === value) return
-    this._scale.set(value, value)
-    this._matrix = undefined
+    this.sx = value
+    this.sy = value
   }
 
   constructor(options?: ICoreOptions) {
@@ -112,7 +118,7 @@ export class Core {
    * 获取物体当前的缩放平移旋转状态(框架内部调用)
    * @returns 返回物体当前的缩放旋转平移矩阵,
    */
-  [GET_MATRIX]() {
+  get [MATRIX_SELF]() {
     if (!this._matrix) {
       this._matrix = new Matrix3().compose(this._position, this._scale, this._theta)
     }
