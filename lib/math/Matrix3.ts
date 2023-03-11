@@ -308,6 +308,13 @@ export class Matrix3 {
     return new Matrix3().fromArray(this.elements)
   }
 
+  /**
+   * 通过position,scale,theta生成新矩阵
+   * @param position 位置
+   * @param scale 缩放
+   * @param theta 旋转弧度
+   * @returns this
+   */
   compose(position: Vector2, scale: Vector2, theta: number) {
     return this.identity().translate(position.x, position.y).scale(scale.x, scale.y).rotate(theta)
   }
