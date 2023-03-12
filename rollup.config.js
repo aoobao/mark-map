@@ -3,10 +3,11 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import dts from 'rollup-plugin-dts'
+import postcss from 'rollup-plugin-postcss'
 const outputDir = 'dist'
 const outputList = ['esm', 'umd']
 
-const commonPlugins = [json(), resolve(), commonjs()]
+const commonPlugins = [postcss(), json(), resolve(), commonjs()]
 
 export default [
   {
