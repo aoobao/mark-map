@@ -1,4 +1,4 @@
-import { PARENT } from '../utils/const'
+import { PARENT, RENDER } from '../utils/const'
 import { Core, ICoreOptions } from './Core'
 import { Layer } from './layer'
 
@@ -6,6 +6,11 @@ export interface IViewOptions extends ICoreOptions {}
 
 export class View extends Core {
   private _layers: Layer[] = []
+
+  /**所有加载的图层 */
+  get layers() {
+    return this._layers.slice(0)
+  }
 
   constructor(opt?: IViewOptions) {
     super(opt)
@@ -57,5 +62,22 @@ export class View extends Core {
       })
     }
     return this
+  }
+
+  /**
+   * 清空图层
+   * @returns this
+   */
+  clear() {
+    if (this._layers.length) this.remove(...this.layers)
+    return this
+  }
+
+  [RENDER]() {
+
+  }
+
+  dispose() {
+    this.clear()
   }
 }

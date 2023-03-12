@@ -12,3 +12,4 @@ export const MATRIX_WORLD = Symbol('matrix_world')
 export const DEFAULT_Z_INDEX = 100
 
 export const RENDER = Symbol('render')
+
