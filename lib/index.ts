@@ -1,4 +1,4 @@
-import './index.css'
+import './index.scss'
 
 import { version } from '../package.json'
 

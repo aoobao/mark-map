@@ -13,3 +13,4 @@ export const DEFAULT_Z_INDEX = 100
 
 export const RENDER = Symbol('render')
 
+export const MARK_MAP_CLASSNAME = 'mark-map'
