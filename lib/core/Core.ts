@@ -5,7 +5,7 @@ import { DEFAULT_Z_INDEX, MATRIX_SELF } from '../utils/const'
 
 export interface ICoreOptions {
   id?: string
-  name?: string | symbol
+  name?: string 
   position?: Vector2 | [number, number]
   scale?: Vector2 | [number, number]
   theta?: number
@@ -23,7 +23,7 @@ export class Core {
   readonly id: string
 
   /**名称 */
-  name?: string | symbol
+  name?: string 
 
   private _position: Vector2
 
@@ -33,7 +33,17 @@ export class Core {
 
   private _matrix: Matrix3 | undefined
 
-  /**透明度[0,1] 1表示不透明 */
+  /**
+   * 获取物体当前的缩放平移旋转状态(框架内部调用)
+   * @returns 返回物体当前的缩放旋转平移矩阵,
+   */
+  get [MATRIX_SELF]() {
+    this.updateMatrix()
+
+    return this._matrix!.clone()
+  }
+
+  /**透明度[0,1] 1表示不透明 允许超过1的值,最终透明度为父节点透明度*自身透明度的值渲染在画布上 */
   alpha = 1
   /**是否显示 */
   visible = true
@@ -49,7 +59,7 @@ export class Core {
   set x(v: number) {
     if (v !== this._position.x) {
       this._position.x = v
-      this._matrix = undefined
+      this.clearMatrix()
     }
   }
 
@@ -62,7 +72,8 @@ export class Core {
   set y(v) {
     if (v !== this._position.y) {
       this._position.y = v
-      this._matrix = undefined
+      this.clearMatrix()
+
     }
   }
 
@@ -74,7 +85,7 @@ export class Core {
   set sx(v) {
     if (this._scale.x !== v) {
       this._scale.x = v
-      this._matrix = undefined
+      this.clearMatrix()
     }
   }
   /**y轴方向缩放 */
@@ -85,7 +96,7 @@ export class Core {
   set sy(v) {
     if (v !== this._scale.y) {
       this._scale.y = v
-      this._matrix = undefined
+      this.clearMatrix()
     }
   }
   /**设置缩放值(x,y缩放相同) */
@@ -115,14 +126,21 @@ export class Core {
   }
 
   /**
-   * 获取物体当前的缩放平移旋转状态(框架内部调用)
-   * @returns 返回物体当前的缩放旋转平移矩阵,
+   * 清除矩阵
    */
-  get [MATRIX_SELF]() {
-    if (!this._matrix) {
+  clearMatrix() {
+    this._matrix = undefined
+  }
+
+  /**
+   * 更新自身矩阵
+   * @param force 是否强制更新
+   */
+  updateMatrix(force = false) {
+    if (!this._matrix || force) {
       this._matrix = new Matrix3().compose(this._position, this._scale, this._theta)
     }
-
-    return this._matrix
   }
+
+  
 }

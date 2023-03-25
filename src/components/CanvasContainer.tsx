@@ -16,7 +16,7 @@ const CanvasContainer: FC<ICanvasContainerProps> = props => {
     }
   }, [])
 
-  return <div ref={wrap$}></div>
+  return <div className="context" ref={wrap$}></div>
 }
 
 export default CanvasContainer

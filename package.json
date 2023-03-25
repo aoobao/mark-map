@@ -37,6 +37,7 @@
     "coveralls": "jest --coverage && coveralls < coverage/lcov.info"
   },
   "dependencies": {
+    "normalize.css": "^8.0.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

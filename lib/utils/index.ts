@@ -48,3 +48,9 @@ export const delay = (number = 0) => {
 export const isNotNull = <T>(val: T): val is Exclude<T, undefined | null> => {
   return val !== null && val !== undefined
 }
+
+const DateTime = typeof performance === 'undefined' ? Date : performance
+
+export const now = () => {
+  return DateTime.now()
+}

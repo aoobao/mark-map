@@ -1,10 +1,15 @@
+import { IViewRenderEvent } from 'lib/types'
 import { PARENT, RENDER } from '../utils/const'
 import { Core, ICoreOptions } from './Core'
-import { Layer } from './layer'
+import { Layer } from './layers'
 
 export interface IViewOptions extends ICoreOptions {}
 
 export class View extends Core {
+  override get type() {
+    return 'View'
+  }
+
   private _layers: Layer[] = []
 
   /**所有加载的图层 */
@@ -73,8 +78,10 @@ export class View extends Core {
     return this
   }
 
-  [RENDER]() {
-
+  [RENDER](opt: IViewRenderEvent) {
+    const layers = this._layers.filter(t => t.visible).sort((a, b) => a.zIndex - b.zIndex)
+    const alpha = this.alpha
+    layers.forEach(layer => {})
   }
 
   dispose() {
