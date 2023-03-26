@@ -1,11 +1,11 @@
 import { Vector2 } from '../math'
 import { Matrix3 } from '../math/Matrix3'
 import { generateUUID, isNotNull } from '../utils'
-import { DEFAULT_Z_INDEX, MATRIX_SELF } from '../utils/const'
+import { DEFAULT_Z_INDEX, MATRIX_SELF, MATRIX_WORLD, PARENT } from '../utils/const'
 
 export interface ICoreOptions {
   id?: string
-  name?: string 
+  name?: string
   position?: Vector2 | [number, number]
   scale?: Vector2 | [number, number]
   theta?: number
@@ -23,25 +23,26 @@ export class Core {
   readonly id: string
 
   /**名称 */
-  name?: string 
+  name?: string
 
   private _position: Vector2
 
   private _scale: Vector2
 
-  private _theta: number
-
-  private _matrix: Matrix3 | undefined
+  private _theta: number;
 
   /**
-   * 获取物体当前的缩放平移旋转状态(框架内部调用)
-   * @returns 返回物体当前的缩放旋转平移矩阵,
+   * 自身矩阵会在自身发生变化时删除，等待下次需要调用时生成
    */
-  get [MATRIX_SELF]() {
-    this.updateMatrix()
+  [MATRIX_SELF]: Matrix3 | undefined;
 
-    return this._matrix!.clone()
-  }
+  /**
+   * 世界矩阵 = 父节点的世界矩阵 X 自身矩阵
+   */
+  [MATRIX_WORLD]: Matrix3 | undefined;
+
+  /**父节点 */
+  [PARENT]: Core | undefined
 
   /**透明度[0,1] 1表示不透明 允许超过1的值,最终透明度为父节点透明度*自身透明度的值渲染在画布上 */
   alpha = 1
@@ -49,6 +50,32 @@ export class Core {
   visible = true
   /**显示层级 */
   zIndex = DEFAULT_Z_INDEX
+
+  /**子节点 */
+  private _children: Core[] = []
+
+  /**排序后的子节点 zIndex 大的排在后面 ，避免在每次render的时候，对子节点重新排一次顺序 */
+  private _sortedChildren: Core[] | undefined
+
+  private _getsortedChildren() {
+    if (this._sortedChildren) {
+      return this._sortedChildren
+    } else {
+      const children = this.children
+
+      children.sort((a, b) => {
+        return a.zIndex - b.zIndex
+      })
+
+      this._sortedChildren = children
+
+      return this._sortedChildren
+    }
+  }
+
+  get children() {
+    return [...this._children]
+  }
 
   /**x轴位置 */
   get x() {
@@ -73,7 +100,6 @@ export class Core {
     if (v !== this._position.y) {
       this._position.y = v
       this.clearMatrix()
-
     }
   }
 
@@ -126,21 +152,107 @@ export class Core {
   }
 
   /**
+   * 添加子对象
+   * @param objects 等待添加的子对象
+   * @returns this
+   */
+  add(...objects: Core[]) {
+    if (!objects.length) return this
+    const object = objects[0]
+    if (object[PARENT] && object[PARENT] === this) {
+      console.warn('object is mount in self', object, this)
+    } else {
+      object[PARENT]?.remove(object) // 如果之前已经挂载在其他对象上的，取消挂载
+      object[MATRIX_WORLD] = undefined // 设置世界矩阵为空，等下次渲染的时候重新计算
+      this._children.push(object)
+      this._sortedChildren = undefined
+      object[PARENT] = this
+    }
+
+    if (objects.length > 1) {
+      objects.slice(1).forEach(object => {
+        this.add(object)
+      })
+    }
+
+    return this
+  }
+
+  /**
+   * 移除子节点
+   * @param objects 要移除的对象
+   */
+  remove(...objects: Core[]) {
+    if (!objects.length) return this
+    const object = objects[0]
+
+    if (object[PARENT] === this) {
+      const index = this._children.indexOf(object)
+
+      if (index > -1) {
+        this._children.splice(index, 1)
+        this._sortedChildren = undefined
+      }
+      object[MATRIX_WORLD] = undefined
+      object[PARENT] = undefined
+    } else {
+      console.warn('object is not mount in self', object, this)
+    }
+
+    if (objects.length > 1) {
+      objects.slice(1).forEach(object => {
+        this.remove(object)
+      })
+    }
+
+    return this
+  }
+
+  /**
    * 清除矩阵
    */
   clearMatrix() {
-    this._matrix = undefined
+    this[MATRIX_SELF] = undefined
+
+    this[MATRIX_WORLD] = undefined
   }
 
   /**
    * 更新自身矩阵
    * @param force 是否强制更新
+   * @returns 是否进行了更新
    */
   updateMatrix(force = false) {
-    if (!this._matrix || force) {
-      this._matrix = new Matrix3().compose(this._position, this._scale, this._theta)
+    if (!this[MATRIX_SELF] || force) {
+      this[MATRIX_SELF] = new Matrix3().compose(this._position, this._scale, this._theta)
+
+      return true
     }
+    return false
   }
 
-  
+  /**
+   * 更新世界矩阵
+   * @param force 是否强制更新
+   * @returns 是否进行了更新
+   */
+  updateMatrixWorld(force = false) {
+    const updateSelf = this.updateMatrix()
+    const matrix = this[MATRIX_SELF]!
+    if (updateSelf || !this[MATRIX_WORLD] || force) {
+      if (!this[PARENT]) {
+        // 没有父节点的时候，自身矩阵就等于世界矩阵
+        this[MATRIX_WORLD] = matrix.clone()
+      } else {
+        this[PARENT].updateMatrixWorld()
+        const parentMatrixWorld = this[PARENT][MATRIX_WORLD]!
+
+        this[MATRIX_WORLD] = new Matrix3().multiplyMatrices(parentMatrixWorld, matrix)
+      }
+
+      return true
+    }
+
+    return false
+  }
 }
