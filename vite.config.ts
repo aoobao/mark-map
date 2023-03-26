@@ -6,8 +6,8 @@ import path from 'path'
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
-      lib: path.resolve(__dirname, 'lib')
+      lib: path.resolve(__dirname, 'lib'),
+      src: path.resolve(__dirname, 'src')
     }
   },
   plugins: [react()]
