@@ -27,7 +27,7 @@ export class View extends Core {
    * @returns this
    */
   add(...layers: Layer[]) {
-    if (!layers.length) return
+    if (!layers.length) return this
     const layer = layers[0]
 
     if (layer[PARENT] && layer[PARENT] === this) {
@@ -50,10 +50,10 @@ export class View extends Core {
   /**
    * 移除图层
    * @param layers 要移除的图层
-   * @returns
+   * @returns this
    */
   remove(...layers: Layer[]) {
-    if (!layers.length) return
+    if (!layers.length) return this
     const layer = layers[0]
     const index = this._layers.indexOf(layer)
     if (index > -1) {
