@@ -1,26 +1,46 @@
-import { createContext, FC, PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, FC, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Stage } from 'lib/index'
+import { useFrame } from './RequestFrame'
 
 const StageContext = createContext<Stage | null>(null)
 
-type IStageContextProps = PropsWithChildren<{}>
+type IStageContextProps = PropsWithChildren<{
+  ftp: number
+}>
 
 const StageComponent: FC<IStageContextProps> = props => {
   const wrap$ = useRef<HTMLDivElement>(null)
   const [created, setCreated] = useState(false)
-  const stage$ = useRef<Stage>(null)
+  const stage$ = useRef<Stage | null>(null)
 
   useEffect(() => {
     const dom = wrap$.current!
     const stage = new Stage({ dom })
 
+    stage$.current = stage
+
     setCreated(true)
 
     return () => {
       stage.destroy()
+      stage$.current = null
       setCreated(false)
     }
   }, [])
+
+  useFrame(
+    () => {
+      const stage = stage$.current
+      if (!stage) return
+      // 渲染前
+
+      stage.render()
+
+      // 渲染后
+    },
+    props.ftp,
+    100
+  )
 
   return (
     <StageContext.Provider value={stage$.current}>
