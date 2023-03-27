@@ -51,30 +51,15 @@ export class Core {
   /**显示层级 */
   zIndex = DEFAULT_Z_INDEX
 
-  /**子节点 */
-  private _children: Core[] = []
-
-  /**排序后的子节点 zIndex 大的排在后面 ，避免在每次render的时候，对子节点重新排一次顺序 */
-  private _sortedChildren: Core[] | undefined
-
-  private _getsortedChildren() {
-    if (this._sortedChildren) {
-      return this._sortedChildren
-    } else {
-      const children = this.children
-
-      children.sort((a, b) => {
-        return a.zIndex - b.zIndex
-      })
-
-      this._sortedChildren = children
-
-      return this._sortedChildren
-    }
+  get theta() {
+    return this._theta
   }
 
-  get children() {
-    return [...this._children]
+  set theta(radian) {
+    if (this._theta !== radian) {
+      this._theta = radian
+      this.clearMatrix()
+    }
   }
 
   /**x轴位置 */
@@ -152,68 +137,10 @@ export class Core {
   }
 
   /**
-   * 添加子对象
-   * @param objects 等待添加的子对象
-   * @returns this
-   */
-  add(...objects: Core[]) {
-    if (!objects.length) return this
-    const object = objects[0]
-    if (object[PARENT] && object[PARENT] === this) {
-      console.warn('object is mount in self', object, this)
-    } else {
-      object[PARENT]?.remove(object) // 如果之前已经挂载在其他对象上的，取消挂载
-      object[MATRIX_WORLD] = undefined // 设置世界矩阵为空，等下次渲染的时候重新计算
-      this._children.push(object)
-      this._sortedChildren = undefined
-      object[PARENT] = this
-    }
-
-    if (objects.length > 1) {
-      objects.slice(1).forEach(object => {
-        this.add(object)
-      })
-    }
-
-    return this
-  }
-
-  /**
-   * 移除子节点
-   * @param objects 要移除的对象
-   */
-  remove(...objects: Core[]) {
-    if (!objects.length) return this
-    const object = objects[0]
-
-    if (object[PARENT] === this) {
-      const index = this._children.indexOf(object)
-
-      if (index > -1) {
-        this._children.splice(index, 1)
-        this._sortedChildren = undefined
-      }
-      object[MATRIX_WORLD] = undefined
-      object[PARENT] = undefined
-    } else {
-      console.warn('object is not mount in self', object, this)
-    }
-
-    if (objects.length > 1) {
-      objects.slice(1).forEach(object => {
-        this.remove(object)
-      })
-    }
-
-    return this
-  }
-
-  /**
    * 清除矩阵
    */
   clearMatrix() {
     this[MATRIX_SELF] = undefined
-
     this[MATRIX_WORLD] = undefined
   }
 
@@ -233,7 +160,7 @@ export class Core {
 
   /**
    * 更新世界矩阵
-   * @param force 是否强制更新
+   * @param force 强制刷新
    * @returns 是否进行了更新
    */
   updateMatrixWorld(force = false) {
@@ -255,4 +182,10 @@ export class Core {
 
     return false
   }
+
+  // core中并未实现children节点，在Group类中去实现
+  add(...objects: Core[]) {}
+
+  // core中并未实现children节点，在Group类中去实现
+  remove(...objects: Core[]) {}
 }

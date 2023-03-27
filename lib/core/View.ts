@@ -79,9 +79,19 @@ export class View extends Core {
   }
 
   [RENDER](opt: IViewRenderEvent) {
-    const layers = this._layers.filter(t => t.visible).sort((a, b) => a.zIndex - b.zIndex)
+    if (!this.visible) return
     const alpha = this.alpha
-    layers.forEach(layer => {})
+    this.updateMatrixWorld()
+    const layers = this._layers.filter(t => t.visible).sort((a, b) => a.zIndex - b.zIndex)
+
+    layers.forEach(layer => {
+      const event = {
+        ...opt,
+        alpha
+      }
+
+      layer[RENDER](event)
+    })
   }
 
   dispose() {
