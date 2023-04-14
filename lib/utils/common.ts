@@ -4,3 +4,22 @@ export const getAlpha = (selfAlpha: number, parentAlpha: number) => {
 
   return selfAlpha === Infinity ? 1 : selfAlpha * parentAlpha
 }
+
+export const downloadImage = (src: string) => {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image()
+    img.src = src
+
+    img.onload = () => {
+      resolve(img)
+    }
+
+    img.onerror = err => {
+      reject(new Error('error'))
+    }
+
+    img.onabort = () => {
+      reject(new Error('abort'))
+    }
+  })
+}

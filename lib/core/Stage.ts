@@ -20,9 +20,9 @@ export class Stage {
 
   private div: HTMLDivElement
 
-  private canvas: HTMLCanvasElement
+  private _canvas: HTMLCanvasElement
 
-  private ctx: CanvasRenderingContext2D
+  private _ctx: CanvasRenderingContext2D
 
   private _disposeCancels: Array<() => void> = []
 
@@ -61,11 +61,11 @@ export class Stage {
 
   /**画布宽度 */
   get width() {
-    return this.canvas.width
+    return this._canvas.width
   }
   /**画布高度 */
   get height() {
-    return this.canvas.height
+    return this._canvas.height
   }
 
   /**挂载的所有layers */
@@ -85,8 +85,8 @@ export class Stage {
 
     this.div.classList.add(MARK_MAP_CLASSNAME)
 
-    this.canvas = document.createElement('canvas')
-    this.ctx = this.canvas.getContext('2d')!
+    this._canvas = document.createElement('canvas')
+    this._ctx = this._canvas.getContext('2d')!
 
     this._initCanvas()
   }
@@ -113,7 +113,7 @@ export class Stage {
 
   /**清空画布 */
   clearCanvas() {
-    this.ctx.clearRect(0, 0, this.width, this.height)
+    this._ctx.clearRect(0, 0, this.width, this.height)
   }
 
   /**渲染画布 */
@@ -123,14 +123,14 @@ export class Stage {
 
     this.autoClear && this.clearCanvas()
 
-    this._view[RENDER]({ delta, timer })
+    this._view[RENDER]({ delta, timer, ctx: this._ctx })
   }
 
   /**销毁 */
   destroy() {
     this._view.dispose()
 
-    this.div.removeChild(this.canvas)
+    this.div.removeChild(this._canvas)
     this.div.classList.remove(MARK_MAP_CLASSNAME)
 
     this._disposeCancels.forEach(func => {
@@ -139,18 +139,18 @@ export class Stage {
   }
 
   private _initCanvasSize() {
-    const { div, canvas } = this
+    const { div, _canvas } = this
     const rect = div.getBoundingClientRect()
 
-    canvas.width = rect.width * this._devicePixelRatio
-    canvas.height = rect.height * this._devicePixelRatio
+    _canvas.width = rect.width * this._devicePixelRatio
+    _canvas.height = rect.height * this._devicePixelRatio
   }
 
   private _initCanvas() {
-    const { div, canvas } = this
+    const { div, _canvas } = this
 
-    canvas.classList.add(MARK_MAP_CLASSNAME + '-canvas')
-    div.appendChild(canvas)
+    _canvas.classList.add(MARK_MAP_CLASSNAME + '-canvas')
+    div.appendChild(_canvas)
     this._initCanvasSize()
 
     const resizeObserver = new ResizeObserver(entries => {

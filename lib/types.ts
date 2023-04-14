@@ -1,6 +1,7 @@
 export interface IRenderEvent {
   delta: number
   timer: number
+  ctx: CanvasRenderingContext2D
 }
 
 export interface IViewRenderEvent extends IRenderEvent {}
@@ -21,4 +22,16 @@ export type IStageEvent = {
 
   'before-render': IViewRenderEvent
   'after-render': IViewRenderEvent
+}
+
+export type IImageLayerEvent = {
+  onload: void
+}
+
+export enum NETWORK_STATE {
+  INIT,
+  WAIT,
+  SUCCESS,
+  ERROR,
+  ABORT
 }
